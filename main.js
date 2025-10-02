@@ -1,0 +1,206 @@
+import PptxGenJS from "pptxgenjs";
+function addSectionTitle(slide, text, color = "3F51B5") {
+    slide.addText(text, { x: 0.5, y: 0.4, fontSize: 28, bold: true, color });
+}
+function bullets(slide, items, xywh = { x: 0.5, y: 1.2, w: 9, h: 4 }) {
+    slide.addText(items.map((i) => `• ${i}`).join("\n"), {
+        ...xywh,
+        fontSize: 14,
+        color: "222",
+        lineSpacing: 20,
+    });
+}
+function addMetricsTable(slide, rows, x = 0.5, y = 1.2, w = 5) {
+    slide.addTable(rows, {
+        x,
+        y,
+        w,
+        fontSize: 12,
+        color: "222",
+        fill: "FFFFFF",
+        border: { type: "solid", color: "DDD", pt: 1 },
+        rowH: 0.36,
+    });
+}
+export function makePortfolioPptx(profile, skills, projects) {
+    const pptx = new PptxGenJS();
+    pptx.layout = "LAYOUT_16x9";
+    const themeColor = "3F51B5";
+    // Cover
+    let slide = pptx.addSlide();
+    slide.addText(profile.name, {
+        x: 0.5,
+        y: 1.0,
+        w: 9,
+        h: 1,
+        fontSize: 44,
+        bold: true,
+        color: themeColor,
+    });
+    slide.addText(profile.title, {
+        x: 0.5,
+        y: 2.1,
+        w: 9,
+        h: 0.6,
+        fontSize: 24,
+        color: "333333",
+    });
+    slide.addText(profile.summary, {
+        x: 0.5,
+        y: 3.0,
+        w: 9,
+        h: 1.5,
+        fontSize: 16,
+        color: "555555",
+    });
+    slide.addShape(ShapeType.rect, {
+        x: 0,
+        y: 0,
+        w: "100%",
+        h: 0.3,
+        fill: themeColor,
+    });
+    slide.addText(profile.contacts.join("  |  "), {
+        x: 0.5,
+        y: 5.0,
+        w: 9,
+        h: 0.4,
+        fontSize: 12,
+        color: "666",
+    });
+    // Skills
+    slide = pptx.addSlide();
+    slide.addText("Skills", {
+        x: 0.5,
+        y: 0.4,
+        fontSize: 28,
+        bold: true,
+        color: themeColor,
+    });
+    slide.addTable(skills, {
+        x: 0.5,
+        y: 1.2,
+        w: 9,
+        border: { type: "none" },
+        fill: "F7F7F7",
+        fontSize: 14,
+        color: "222",
+        colW: [2.2, 3.6, 3.2],
+        rowH: 0.4,
+    });
+    // Projects
+    projects.forEach((p) => {
+        const s = pptx.addSlide();
+        s.addText(p.name, {
+            x: 0.5,
+            y: 0.4,
+            fontSize: 26,
+            bold: true,
+            color: themeColor,
+        });
+        s.addText(`${p.period}  •  ${p.role}`, {
+            x: 0.5,
+            y: 1.0,
+            fontSize: 14,
+            color: "666",
+        });
+        s.addText(`Stack: ${p.stack}`, {
+            x: 0.5,
+            y: 1.4,
+            fontSize: 13,
+            color: "444",
+        });
+        s.addText(p.impact.map((t) => `• ${t}`).join("\n"), {
+            x: 0.5,
+            y: 2.0,
+            w: 5.8,
+            h: 3.5,
+            fontSize: 14,
+            color: "222",
+            lineSpacing: 20,
+        });
+        s.addTable(p.metrics, {
+            x: 6.5,
+            y: 2.0,
+            w: 3.0,
+            fontSize: 12,
+            color: "222",
+            fill: "FFFFFF",
+            border: { type: "solid", color: "DDD", pt: 1 },
+            rowH: 0.36,
+        });
+    });
+    // Contact
+    slide = pptx.addSlide();
+    slide.addText("Contact", {
+        x: 0.5,
+        y: 0.4,
+        fontSize: 26,
+        bold: true,
+        color: themeColor,
+    });
+    slide.addText([
+        "Email: email@example.com",
+        "GitHub: github.com/yourid",
+        "LinkedIn: linkedin.com/in/yourid",
+    ].join("\n"), { x: 0.5, y: 1.2, fontSize: 14, color: "222", lineSpacing: 20 });
+    return pptx.writeFile({ fileName: "portfolio.pptx" });
+}
+// 사용 예시
+const myProfile = {
+    name: "이동욱",
+    title: "Frontend Engineer",
+    summary: "AI/익스텐션/PWA 중심으로 스트리밍 UX 구축, 성능 및 i18n 파이프라인 경험.",
+    contacts: ["Seoul, KR", "email@example.com", "github.com/yourid"],
+};
+const mySkills = [
+    ["Category", "Main", "Sub"],
+    ["Frontend", "TS, React, Next.js", "Tailwind, Emotion, Vite"],
+    ["Infra", "Docker, Nginx", "GCP, CI/CD"],
+    ["AI/Etc", "RAG, SSE", "Chrome Ext, i18n"],
+];
+const myProjects = [
+    {
+        name: "AI 스트리밍 플랫폼",
+        period: "2024.01 - 2024.06",
+        role: "Frontend Lead",
+        stack: "React, TypeScript, WebRTC, OpenAI API",
+        impact: [
+            "실시간 AI 채팅 및 음성 스트리밍 구현",
+            "WebRTC 기반 P2P 연결로 지연시간 50% 감소",
+            "다국어 지원으로 글로벌 사용자 30% 증가",
+            "반응형 디자인으로 모바일 사용성 개선",
+        ],
+        metrics: [
+            ["지표", "수치"],
+            ["사용자 수", "10,000+"],
+            ["평균 응답시간", "200ms"],
+            ["모바일 점유율", "65%"],
+            ["만족도", "4.8/5.0"],
+        ],
+    },
+    {
+        name: "Chrome 확장 프로그램",
+        period: "2023.08 - 2023.12",
+        role: "Full-stack Developer",
+        stack: "Chrome Extension API, React, Node.js",
+        impact: [
+            "웹페이지 자동 번역 및 요약 기능",
+            "사용자 행동 분석으로 개인화 추천",
+            "오프라인 모드 지원으로 접근성 향상",
+            "크로스 브라우저 호환성 확보",
+        ],
+        metrics: [
+            ["지표", "수치"],
+            ["다운로드", "5,000+"],
+            ["일일 활성 사용자", "1,200"],
+            ["번역 정확도", "95%"],
+            ["사용자 리텐션", "78%"],
+        ],
+    },
+];
+document
+    .querySelector("#make")
+    ?.addEventListener("click", () => {
+    makePortfolioPptx(myProfile, mySkills, myProjects);
+});
